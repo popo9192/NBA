@@ -56,7 +56,7 @@ def SplitTeams(df,year):
         df1['AvgORTG'] = df1['OFF_RATING_x'].expanding().mean()
         df1['AvgDRTG'] = df1['DEF_RATING_x'].expanding().mean()
         df1['AvgNET'] = df1['NET_RATING_x'].expanding().mean()
-
+        df1['AvgPTS'] = df1['PTS_x'].expanding().mean()
 
         df1['HomeORTG'] = df1['HomeORTG_x'].expanding().mean()
         df1['AwayORTG'] = df1['AwayORTG_x'].expanding().mean()
@@ -136,6 +136,7 @@ def SplitTeams(df,year):
         df1['AvgORTG'] = df1['AvgORTG'].shift(1)
         df1['AvgDRTG'] = df1['AvgDRTG'].shift(1)
         df1['AvgNET'] = df1['AvgNET'].shift(1)
+        df1['AvgPTS'] = df1['AvgPTS'].shift(1)
 
         df1['HomeORTG'] = df1['HomeORTG'].shift(1)
         df1['AwayORTG'] = df1['AwayORTG'].shift(1)
@@ -219,6 +220,7 @@ def SplitTeams(df,year):
         df1['vs_AvgORTG'] = df1['OFF_RATING_y'].expanding().mean()
         df1['vs_AvgDRTG'] = df1['DEF_RATING_y'].expanding().mean()
         df1['vs_AvgNET'] = df1['NET_RATING_y'].expanding().mean()
+        df1['vs_AvgPTS'] = df1['PTS_y'].expanding().mean()
 
 
         df1['vs_HomeORTG'] = df1['HomeORTG_y'].expanding().mean()
@@ -298,6 +300,7 @@ def SplitTeams(df,year):
         df1['vs_AvgORTG'] = df1['vs_AvgORTG'].shift(1)
         df1['vs_AvgDRTG'] = df1['vs_AvgDRTG'].shift(1)
         df1['vs_AvgNET'] = df1['vs_AvgNET'].shift(1)
+        df1['vs_AvgPTS'] = df1['vs_AvgPTS'].shift(1)
 
         df1['vs_HomeORTG'] = df1['vs_HomeORTG'].shift(1)
         df1['vs_AwayORTG'] = df1['vs_AwayORTG'].shift(1)
@@ -398,7 +401,7 @@ def getFirstSplit(year):
     df3 = df3.sort_values(by=['GAMECODE','HomeIndex_x_x'],ascending=[True,True])
     # saveToExcel(df3,'Formatted_Data' +year+'.xlsx','Master')
     # split(df3)
-    print("Complete")
+    # print("Complete")
     return df3
 
 # def split(df):
@@ -412,36 +415,9 @@ def getFirstSplit(year):
 #     print('Data Split')
 
 
-def SplitJointTeams(df,year):
-    writer = ExcelWriter('Split_Teams_2nd_Time_'+ year +'.xlsx')
-    print('Splitting Data')
-    for i in teamList:
-        df1 = df.loc[df['TEAM_ABBREVIATION_x'] == i]
-        df1['AvgPace_OPP']= df1['vs_AvgPace'].expanding().mean()
-        df1['AvgORTG_OPP'] = df1['vs_AvgORTG'].expanding().mean()
-        df1['AvgDRTG_OPP'] = df1['vs_AvgORTG'].expanding().mean()
-        df1['AvgORTG_L5_OPP'] = df1['AvgORTG_y'].rolling(window=5).mean()
-        df1['AvgDRTG_L5_OPP'] = df1['AvgDRTG_y'].rolling(window=5).mean()
-        df1['Opp_ORTG_vs_Avg'] = df1['LeagueAvgORTG'] / df1['AvgORTG_OPP']
-        df1['Opp_DRTG_vs_Avg'] = df1['LeagueAvgDRTG']/ df1['AvgDRTG_OPP']
-        df1['Opp_Pace_vs_Avg'] = df1['AvgPace_OPP'] / df1['LeagueAvgPace']
-        df1['Opp_ORTG_vs_Avg_L5'] = df1['LeagueAvgORTG_L5'] / df1['AvgORTG_L5_OPP']
-        df1['Opp_DRTG_vs_Avg_L5'] = df1['LeagueAvgDRTG_L5']/ df1['AvgDRTG_L5_OPP']
 
-        df1['std_AvgORTG'] = df1['AvgORTG_x'] * df1['Opp_DRTG_vs_Avg']
-        df1['std_AvgDRTG'] = df1['AvgDRTG_x'] / df1['Opp_ORTG_vs_Avg']
-        df1['std_AvgORTG_L5'] = df1['AvgORTG_L5_x'] * df1['Opp_DRTG_vs_Avg_L5']
-        df1['std_AvgDRTG_L5'] = df1['AvgDRTG_L5_x'] / df1['Opp_ORTG_vs_Avg_L5']
-
-
-        df1.to_excel(writer,i)
-
-    writer.save()
-    return(df1)
-    print('Data Split')
 
 def trimDF(df):
-
     dfbase = df[['GAMECODE','GAME_DATE_EST_x_x','TEAM_ABBREVIATION_x_x','TEAM_ABBREVIATION_y_x','HomeIndex_x_x','DaysRest_x','DaysRest_y','PTS_x_x']]
 
     df3PT = df[['GAMECODE','TEAM_ABBREVIATION_x_x','avg_FG3A_x','avg_FG3%_x','avg_PCT_FGA_3PT_x','avg_PCT_PTS_3PT_x','avg_PCT_AST_3PM_x','avg_PCT_UAST_3PM_x','vs_avg_FG3A_y',
@@ -459,54 +435,76 @@ def trimDF(df):
     'vs_avg_OREB_y','vs_avg_OREB%_y','vs_avg_PCT_FGA_2PT_y','vs_avg_PCT_PTS_FT_y','vs_avg_PCT_PTS_OFF_TOV_y','vs_avg_PCT_AST_2PM_y','vs_avg_PCT_AST_FGM_y'
     ,'vs_avg_PTS_OFF_TOV_y','avg_DREB_y','avg_DREB%_y']]
 
-    dfs = [dfbase,df3PT,dfPAINT,dfFF]
+    dfRTG = df[['GAMECODE','TEAM_ABBREVIATION_x_x','AvgORTG_x','AvgDRTG_x','AvgNET_x','HomeORTG_x','AwayORTG_x','HomeDRTG_x','AwayDRTG_x',
+    'Location_Avg_ORTG_x','Location_Avg_DRTG_x','AvgPace_x','Avg_Possessions_x','est_avg_Poss_x','AvgPTS_x','vs_AvgORTG_x','vs_AvgDRTG_x','vs_AvgNET_x','vs_HomeORTG_x',
+    'vs_AwayORTG_x','vs_HomeDRTG_x','vs_AwayDRTG_x','vs_AvgPace_x','vs_est_avg_Poss_x','vs_Avg_Possessions_x']]
+
+    dfs = [dfbase,df3PT,dfPAINT,dfFF,dfRTG]
     df_final = reduce(lambda left,right: pd.merge(left,right,on=['GAMECODE','TEAM_ABBREVIATION_x_x']), dfs)
 
 
     saveToExcel(df_final,'DataForModel_'+ year +'.xlsx','Master')
     return df_final
 
-def getLeagueAvg(df,year):
-    df['GAMELINK'] = df['GAMECODE'].str[:8]
-    df1 = df[['OFF_RATING_x','GAMELINK']]
-    df2 = df[['DEF_RATING_x','GAMELINK']]
-    df3 = df[['PACE_x','GAMELINK']]
-    df1 = df1.groupby(['GAMELINK'],as_index=False)['OFF_RATING_x'].mean()
-    df2 = df2.groupby(['GAMELINK'],as_index=False)['DEF_RATING_x'].mean()
-    df3 = df3.groupby(['GAMELINK'],as_index=False)['PACE_x'].mean()
+# def SplitJointTeams(df,year):
+#     writer = ExcelWriter('Split_Teams_2nd_Time_'+ year +'.xlsx')
+#     print('Splitting Data')
+#     for i in teamList:
+#         df1 = df.loc[df['TEAM_ABBREVIATION_x_x'] == i]
+#         df1['AvgPace_OPP']= df1['vs_AvgPace_x'].expanding().mean()
+#         df1['AvgORTG_OPP'] = df1['vs_AvgORTG_x'].expanding().mean()
+#         df1['AvgDRTG_OPP'] = df1['vs_AvgORTG_x'].expanding().mean()
+#         df1['Opp_ORTG_vs_Avg'] = df1['LeagueAvgORTG'] / df1['AvgORTG_OPP']
+#         df1['Opp_DRTG_vs_Avg'] = df1['LeagueAvgDRTG']/ df1['AvgDRTG_OPP']
+#         df1['Opp_Pace_vs_Avg'] = df1['AvgPace_OPP'] / df1['LeagueAvgPace']
+#
+#         df1['std_AvgORTG'] = df1['AvgORTG_x'] * df1['Opp_DRTG_vs_Avg']
+#         df1['std_AvgDRTG'] = df1['AvgDRTG_x'] / df1['Opp_ORTG_vs_Avg']
+#
+#
+#         df1.to_excel(writer,i)
+#
+#     writer.save()
+#     return(df1)
+#     print('Data Split')
 
-    df4 = pd.merge(df1, df2, on='GAMELINK',how='outer')
-    df5 = pd.merge(df4, df3, on='GAMELINK',how='outer')
-    df5['LeagueAvgORTG'] = df5['OFF_RATING_x'].expanding().mean()
-    df5['LeagueAvgDRTG'] = df5['DEF_RATING_x'].expanding().mean()
-    df5['LeagueAvgPace'] = df5['PACE_x'].expanding().mean()
-    df5['LeagueAvgORTG'] = df5['LeagueAvgORTG'].shift(1)
-    df5['LeagueAvgDRTG'] = df5['LeagueAvgDRTG'].shift(1)
-    df5['LeagueAvgPace'] = df5['LeagueAvgPace'].shift(1)
-
-    df5 = df5[['GAMELINK','LeagueAvgORTG','LeagueAvgDRTG','LeagueAvgPace']]
-    df6 = pd.merge(df, df5, on='GAMELINK',how='outer')
-
-    saveToExcel(df6,'LeagueAvg_'+ year + '.xlsx','Master')
-    return df6
+# def getLeagueAvg(df,year):
+#     df['GAMELINK'] = df['GAMECODE'].str[:8]
+#     df1 = df[['OFF_RATING_x_x','GAMELINK']]
+#     df2 = df[['DEF_RATING_x_x','GAMELINK']]
+#     df3 = df[['PACE_x_x','GAMELINK']]
+#     df1 = df1.groupby(['GAMELINK'],as_index=False)['OFF_RATING_x_x'].mean()
+#     df2 = df2.groupby(['GAMELINK'],as_index=False)['DEF_RATING_x_x'].mean()
+#     df3 = df3.groupby(['GAMELINK'],as_index=False)['PACE_x_x'].mean()
+#
+#     df4 = pd.merge(df1, df2, on='GAMELINK',how='outer')
+#     df5 = pd.merge(df4, df3, on='GAMELINK',how='outer')
+#     df5['LeagueAvgORTG'] = df5['OFF_RATING_x_x'].expanding().mean()
+#     df5['LeagueAvgDRTG'] = df5['DEF_RATING_x_x'].expanding().mean()
+#     df5['LeagueAvgPace'] = df5['PACE_x_x'].expanding().mean()
+#     df5['LeagueAvgORTG'] = df5['LeagueAvgORTG'].shift(1)
+#     df5['LeagueAvgDRTG'] = df5['LeagueAvgDRTG'].shift(1)
+#     df5['LeagueAvgPace'] = df5['LeagueAvgPace'].shift(1)
+#
+#     df5 = df5[['GAMELINK','LeagueAvgORTG','LeagueAvgDRTG','LeagueAvgPace']]
+#     df6 = pd.merge(df, df5, on='GAMELINK',how='outer')
+#
+#     saveToExcel(df6,'LeagueAvg_'+ year + '.xlsx','Master')
+#     return df6
 
 
 def CalcStats(year):
     # ---------------- Split data out by team and calculate stats ------------------------
-    # dataset = getDataSet('AllStats_'+ year + '.xlsx')
-    # SplitTeams(dataset,year)
+    dataset = getDataSet('AllStats_'+ year + '.xlsx')
+    SplitTeams(dataset,year)
     # ---------------- Consume team data from tabs to make one dataset and combine both teams onto one line------------------------
     d1 = getFirstSplit(year)
     # #---------------- Cosolidate split team data, remove first 6 rows without Last 5 calcs, Filter only needed columns------------------------
     teamdata4 = trimDF(d1)
     print('Stat Calculation Complete')
 
-year = '2017'
-# CalcStats(year)
-
-
-teamdata1 = getFirstSplit(year)
-teamdata2 = getLeagueAvg(teamdata1,year)
+year = '2015'
+CalcStats(year)
 
 # dataset = getDataSet('AllStats_'+ year + '_.xlsx')
 # SplitTeams(dataset,year)
