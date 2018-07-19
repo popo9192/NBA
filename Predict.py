@@ -5,21 +5,19 @@ from datetime import date
 import pandas as pd
 from pandas import ExcelWriter
 import numpy as np
-from Stat_Finder import getGames, getToday,getYesterday,getADVStats,getTodaysGames
-from Format_data import CalcStats,getDataSet, getDataSetcsv, saveToExcel
-from NBA_RF_Regression import LoadAwayModel,LoadHomeModel, LoadPaceModel
+from base_functions import (saveToExcel,getDataSet,getDataSetcsv,getDateCutoff,LoadModel)
+# from Stat_Finder import getGames, getToday,getYesterday,getADVStats,getTodaysGames
 from Odds_Scraper import scrapeOdds, main
-os.chdir('C:\\Users\\Peter Haley\\Desktop\\Projects\\Data_Science\\Python\\NBA\\Excel')
+# os.chdir('C:\\Users\\Peter Haley\\Desktop\\Projects\\Data_Science\\Python\\NBA\\Excel')
 
-# source = '/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/'
-# os.chdir('/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/')
+source = '/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/'
+os.chdir('/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/')
 
-year = '2017'
-fetchOdds = False
 
-today = getToday()
-yesterday = getYesterday()
-print(today)
+
+# today = getToday()
+# yesterday = getYesterday()
+# print(today)
 
 # -----------Get Yesterdays Games and Add to existing game Data--------------
 def GetYesterdaysData():
@@ -66,6 +64,7 @@ def getResults(ActualDF,ProjectionsDF,Period):
     # y = df5['GAMECODE_x'].str[:9].values
     # if x != y:
     # saveToExcel(dfs,'Season_Results.xlsx','Master')
+
 
 
 def GetTodaysData():
@@ -224,19 +223,19 @@ def GetOdds():
     #     saveToExcel(df2,'Season_Odds.xlsx','Master')
     return df1
 
-def getAllOdds(df,year):
-
+def getAllOdds(year):
+    df = getDataSet('DataForModel_'+year+'.xlsx')
     dates = df.GAME_DATE_EST_x_x.unique()
+    dfall = getDataSet('Historical_Odds_'+year+'.xlsx')
+    done = dfall.GAME_DATE_EST_x.unique()
     for i in dates:
-        dfall = getDataSet('Historical_Odds_'+year+'.xlsx')
-        done = dfall.GAME_DATE_EST_x.unique()
         if i > done[-1]:
             x = i
             i = i[:10]
             i = i.replace("-","")
             print(i)
-            main(i)
-            df = getDataSet('Todays_Odds.xlsx')
+            df = main(i)
+            # df = getDataSet('Todays_Odds.xlsx')
             df['AwayTeam'] = df.apply(getTeams,axis=1)
             df['HomeTeam'] = df.apply(getOppTeams,axis=1)
             df['key'] = df['key'].astype(str)
@@ -248,7 +247,7 @@ def getAllOdds(df,year):
             # saveToExcel(df,'Todays_Odds.xlsx','Master')
             # dfh = getDataSet('Historical_Odds.xlsx')
             dfall = dfall.append(df)
-            saveToExcel(dfall,'Historical_Odds_'+year+'.xlsx','Master')
+        saveToExcel(dfall,'Historical_Odds_'+year+'.xlsx','Master')
 
 def getTeams(df):
     return EditTeamList[df['team']]
@@ -329,7 +328,8 @@ EditTeamList = {'Atlan':'ATL','Bost':'BOS','Brookl':'BKN','Charlot':'CHA','Chica
 # saveToExcel(proj,'Projections.xlsx','Master')
 
 # -------------------Run Model on Specific Day. Start of backtesting---------------
-# year = '2017'
-# df = getDataSet('DataForModel_'+ year +'.xlsx')
-# getAllOdds(df,year)
+year = '2017'
+fetchOdds = False
+# # df = getDataSet('DataForModel_'+ year +'.xlsx')
+getAllOdds(year)
 # backtest()

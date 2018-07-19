@@ -8,7 +8,6 @@ from pandas import ExcelWriter,DataFrame
 import urllib.request
 from requests import get
 from Stat_Finder import getAllGames
-from base_functions import getDataSet,saveToExcel
 
 
 source = '/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/'
@@ -23,10 +22,10 @@ HEADERS = {
     'origin': ('http://stats.nba.com')
     }
 
-endpoints = ['boxscoresummaryv2','boxscoreadvancedv2','boxscorefourfactorsv2','boxscoretraditionalv2','boxscorescoringv2','boxscoremiscv2']
+endpoints = ['boxscoreadvancedv2','boxscorefourfactorsv2','boxscorescoringv2']
 # params = "gameid=0041700401&startPeriod=01&endPeriod=01&startrange=01&endrange=01&rangetype=0"
-# game_id="0"
-params={'GameID': "0",
+game_id="0041700401"
+params={'GameID': game_id,
     'Season': "0",
     'SeasonType': "0",
     'RangeType': "0",
@@ -60,6 +59,7 @@ def _api_scrape(json_inp, ndx):
         else:
             A dictionary of both headers and values from the page
     """
+
     try:
         headers = json_inp['resultSets'][ndx]['headers']
         values = json_inp['resultSets'][ndx]['rowSet']
@@ -75,39 +75,40 @@ def _api_scrape(json_inp, ndx):
             values = json_inp['resultSet']['rowSet']
     return DataFrame(values, columns=headers)
 
+# json_inp = getStat(endpoint, params)
+# df = _api_scrape(json_inp,ndx)
+
+# print(df[["GAME_ID","TEAM_NAME"]])
+
 def hitEndpoints(endpoints,params,ndx):
     df1 = pd.DataFrame()
     for e in endpoints:
-        if e == 'boxscoresummaryv2':
-            ndx = 0
-        else:
-            ndx = 1
         json_inp = getStat(e, params)
         df = _api_scrape(json_inp,ndx)
-        if e == 'boxscoresummaryv2':
-            df = df[['GAME_DATE_EST','GAMECODE']]
         df1 = pd.concat([df1,df],axis=1)
-    # print(df1)
-    return(df1)
+    print(df1)
 
 def getADVStats(gameList,endpoints,params,ndx):
     df1 = pd.DataFrame()
     for a in gameList:
         print(a)
-        params['GameID'] = a
+        params[game_id] = a
         df = hitEndpoints(endpoints,params,ndx)
         df1 = pd.concat([df1,df],axis=0)
-    df1.fillna(method='ffill',inplace=True)
+    # df1.fillna(method='ffill',inplace=True)
     # print(df1.head())
     print('Stats Compiled')
-    # print(df1)
     return df1
 
+gameList = getAllGames()
+gameList = gameList[:5]
+getADVStats(gameList,endpoints,params,ndx)
 
-year = "2017"
-gameList = getAllGames(year)
-# gameList = gameList[:5]
-df = getADVStats(gameList,endpoints,params,ndx)
-saveToExcel(df,"AllStats_"+year+".xlsx",year)
 
-# print(params)
+
+
+
+def getDataSet(dataset):
+    df = pd.read_excel(dataset)
+    # print('Dataset Loaded')
+    return df

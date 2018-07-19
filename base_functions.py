@@ -6,6 +6,7 @@ from datetime import datetime
 import pandas as pd
 from pandas import ExcelWriter
 from functools import reduce
+import pickle
 
 
 
@@ -85,3 +86,7 @@ def getLocationDRTG(df):
         return df['HomeDRTG']
     else:
         return df['AwayDRTG']
+
+def LoadModel(filename):
+    loaded_model = pickle.load(open(filename, 'rb'))
+    return loaded_model

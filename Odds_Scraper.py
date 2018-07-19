@@ -1,7 +1,7 @@
 import datetime
 import time
 from datetime import date
-from Format_data import getDataSet
+from base_functions import getDataSet
 import requests
 from bs4 import BeautifulSoup
 from pandas.io.excel import ExcelWriter
@@ -9,10 +9,10 @@ import pandas
 from pandas import DataFrame
 import os
 # from Predict import saveToExcel
-os.chdir('C:\\Users\\Peter Haley\\Desktop\\Projects\\Data_Science\\Python\\NBA\\Excel')
+# os.chdir('C:\\Users\\Peter Haley\\Desktop\\Projects\\Data_Science\\Python\\NBA\\Excel')
 
-# source = '/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/'
-# os.chdir('/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/')
+source = '/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/'
+os.chdir('/Users/peterhaley/Desktop/NBA_Wizard/NBA/Excel/')
 
 '''
 def connectTor():
@@ -375,9 +375,10 @@ def main(date):
 
     # with open('SBR_NBA_Lines.csv', 'wb') as f:
     #     write_df.to_(f, index=False)  # , header = False)
-    writer1 = ExcelWriter('Todays_Odds.xlsx')
-    write_df.to_excel(writer1,'Master')
-    writer1.save()
+    # writer1 = ExcelWriter('Todays_Odds.xlsx')
+    # write_df.to_excel(writer1,'Master')
+    # writer1.save()
+    return write_df
 
 
         # with ExcelWriter('Todays_Odds.xlsx') as ew:
